@@ -1,2 +1,4 @@
 frontend/node_modules
 backend/node_modules
+frontend/.expo
+frontend/expo-env.d.ts
