@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
 import { useRouter } from "expo-router";
+import { colors } from "../../utils/colors";
+import { fonts } from "../../utils/fonts";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -29,13 +31,33 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.headingText}>Hey,</Text>
+        <Text style={styles.headingText}>Welcome</Text>
+        <Text style={styles.headingText}>Back!!</Text>
+      </View>
+      <Text style={styles.title}>Enter your details:</Text>
       <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} />
       <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} />
-
+      <TouchableOpacity>
+          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+        </TouchableOpacity>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+      <Text style={styles.continueText}>or continue with</Text>
+        <TouchableOpacity style={styles.googleButtonContainer}>
+          <Image source={require("../../assets/images/google.png")}
+            style={styles.googleImage}
+          />
+          <Text style={styles.googleText}>Google</Text>
+        </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <Text style={styles.accountText}>Dont have an account?</Text>
+          <TouchableOpacity onPress={() => router.push("/screens/signup")}>
+            <Text style={styles.signupText}>Sign up</Text>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 }
@@ -48,28 +70,85 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   title: {
-    fontSize: 28,
-    marginBottom: 20,
+    fontSize: 30,
+    marginBottom: 5,
+    marginTop: 0,
     textAlign: "center",
   },
   input: {
     borderWidth: 1,
+    borderRadius: 100,
     borderColor: "#ccc",
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 15,
-    borderRadius: 5,
+    paddingHorizontal: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 2,
+    marginVertical: 10,
+    height: 50,
   },
   button: {
     backgroundColor: "#007AFF",
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: 100,
     alignItems: "center",
     marginTop: 15,
   },
   buttonText: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: "600",
+  },
+  textContainer: {
+    marginTop: -100,
+    marginBottom: 50,
+  },
+  headingText: {
+    fontSize: 40,
+    fontFamily: fonts.SemiBold,
+    color: "#007AFF",
+  },
+  forgotPasswordText: {
+    textAlign: "right",
+    marginVertical: 10,
+  },
+  continueText: {
+    textAlign: "center",
+    marginVertical: 20,
+    fontSize: 14,
+    fontFamily: fonts.Regular,
+    color: colors.primary,
+  },
+  googleButtonContainer: {
+    flexDirection: "row",
+    borderWidth: 2,
+    borderColor: colors.primary,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    gap: 10,
+  },
+  googleImage: {
+    height: 20,
+    width: 20,
+  },
+  googleText: {
+    fontSize: 20,
+    fontFamily: fonts.SemiBold,
+  },
+  footerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 5,
+  },
+  accountText: {
+    color: colors.primary,
+    fontFamily: fonts.Regular,
+  },
+  signupText: {
+    color: colors.primary,
+    fontFamily: fonts.Bold,
   },
 });

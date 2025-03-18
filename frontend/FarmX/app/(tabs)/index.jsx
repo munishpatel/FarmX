@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Link } from 'expo-router';
+import { useNavigation } from "@react-navigation/native";
 
 export default function HomeScreen() {
   return (
@@ -41,7 +42,7 @@ const styles = StyleSheet.create({
     width: 250,
     paddingVertical: 15,
     backgroundColor: '#007AFF', // Blue for Login
-    borderRadius: 8,
+    borderRadius: 50,
     alignItems: 'center',
     marginBottom: 15,
   },
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     width: 250,
     paddingVertical: 15,
     backgroundColor: '#34C759', // Very obvious color for testing
-    borderRadius: 8,
+    borderRadius: 50,
     alignItems: 'center',
   },
   buttonText: {

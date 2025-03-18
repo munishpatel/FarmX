@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import { colors } from "../../utils/colors";
+import { fonts } from "../../utils/fonts";
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -30,6 +32,10 @@ export default function SignupScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.textContainer}>
+        <Text style={styles.headingText}>Let's get</Text>
+        <Text style={styles.headingText}>started</Text>
+      </View>
       <Text style={styles.title}>Sign Up</Text>
       <TextInput placeholder="Name" style={styles.input} value={name} onChangeText={setName} />
       <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} />
@@ -38,6 +44,20 @@ export default function SignupScreen() {
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+      <Text style={styles.continueText}>or continue with</Text>
+        <TouchableOpacity style={styles.googleButtonContainer}>
+          <Image
+            source={require("../../assets/images/google.png")}
+            style={styles.googleImage}
+          />
+          <Text style={styles.googleText}>Google</Text>
+        </TouchableOpacity>
+        <View style={styles.footerContainer}>
+          <Text style={styles.accountText}>Already have an account!</Text>
+          <TouchableOpacity onPress={() => router.push("/screens/login")}>
+            <Text style={styles.signupText}>Login</Text>
+          </TouchableOpacity>
+        </View>
     </View>
   );
 }
@@ -48,6 +68,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: "center",
     backgroundColor: "#fff",
+  },
+  textContainer: {
+    marginVertical: 20,
+  },
+  headingText: {
+    fontSize: 32,
+    color: colors.primary,
+    fontFamily: fonts.SemiBold,
   },
   title: {
     fontSize: 28,
@@ -60,12 +88,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginBottom: 15,
-    borderRadius: 5,
+    borderRadius: 100,
   },
   button: {
     backgroundColor: "#007AFF",
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: 100,
     alignItems: "center",
     marginTop: 15,
   },
@@ -73,5 +101,45 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 18,
     fontWeight: "600",
+  },
+  continueText: {
+    textAlign: "center",
+    marginVertical: 20,
+    fontSize: 14,
+    fontFamily: fonts.Regular,
+    color: colors.primary,
+  },
+  googleButtonContainer: {
+    flexDirection: "row",
+    borderWidth: 2,
+    borderColor: colors.primary,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    gap: 10,
+  },
+  googleImage: {
+    height: 20,
+    width: 20,
+  },
+  googleText: {
+    fontSize: 20,
+    fontFamily: fonts.SemiBold,
+  },
+  footerContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 20,
+    gap: 5,
+  },
+  accountText: {
+    color: colors.primary,
+    fontFamily: fonts.Regular,
+  },
+  signupText: {
+    color: colors.primary,
+    fontFamily: fonts.Bold,
   },
 });
