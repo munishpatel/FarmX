@@ -1,6 +1,6 @@
-# FarmX
+# FarmR.ai
 
-FarmX is a full-stack application designed to manage farm-related activities. This project includes a backend built with Node.js and Express, and a frontend built with React Native using Expo.
+FarmR.ai is a full-stack application designed to manage farm-related activities. This project includes a backend built with Node.js and Express, and a frontend built with React Native using Expo.
 
 ---
 
