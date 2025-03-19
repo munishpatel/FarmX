@@ -3,6 +3,7 @@ import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } fro
 import { useRouter } from "expo-router";
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
+import GradientBackground from "../../components/gradient"; 
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
@@ -31,43 +32,44 @@ export default function SignupScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.headingText}>Let's get</Text>
-        <Text style={styles.headingText}>started</Text>
-      </View>
-      <Text style={styles.title}>Sign Up</Text>
-      <TextInput placeholder="Name" style={styles.input} value={name} onChangeText={setName} />
-      <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} />
-      <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} />
-
-      <TouchableOpacity style={styles.button} onPress={handleSignup}>
-        <Text style={styles.buttonText}>Sign Up</Text>
-      </TouchableOpacity>
-      <Text style={styles.continueText}>or continue with</Text>
-        <TouchableOpacity style={styles.googleButtonContainer}>
-          <Image
-            source={require("../../assets/images/google.png")}
-            style={styles.googleImage}
-          />
-          <Text style={styles.googleText}>Google</Text>
-        </TouchableOpacity>
-        <View style={styles.footerContainer}>
-          <Text style={styles.accountText}>Already have an account!</Text>
-          <TouchableOpacity onPress={() => router.push("/screens/login")}>
-            <Text style={styles.signupText}>Login</Text>
-          </TouchableOpacity>
+    <GradientBackground>
+      <View style={styles.contentContainer}>
+        <View style={styles.textContainer}>
+          <Text style={styles.headingText}>Let's get</Text>
+          <Text style={styles.headingText}>started</Text>
         </View>
-    </View>
+        <Text style={styles.title}>Sign Up</Text>
+        <TextInput placeholder="Name" style={styles.input} value={name} onChangeText={setName} placeholderTextColor="#666666" />
+        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#666666" />
+        <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} placeholderTextColor="#666666" />
+
+        <TouchableOpacity style={styles.button} onPress={handleSignup}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <Text style={styles.continueText}>or continue with</Text>
+          <TouchableOpacity style={styles.googleButtonContainer}>
+            <Image
+              source={require("../../assets/images/google.png")}
+              style={styles.googleImage}
+            />
+            <Text style={styles.googleText}>Google</Text>
+          </TouchableOpacity>
+          <View style={styles.footerContainer}>
+            <Text style={styles.accountText}>Already have an account!</Text>
+            <TouchableOpacity onPress={() => router.push("/screens/login")}>
+              <Text style={styles.signupText}>Login</Text>
+            </TouchableOpacity>
+          </View>
+      </View>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: { // Add contentContainer style
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: "center",
-    backgroundColor: "#fff",
   },
   textContainer: {
     marginVertical: 20,
@@ -84,14 +86,14 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1,
-    borderColor: "#ccc",
+    borderColor: colors.primary,
     paddingHorizontal: 10,
     paddingVertical: 8,
     marginBottom: 15,
     borderRadius: 100,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#FF9800",
     paddingVertical: 15,
     borderRadius: 100,
     alignItems: "center",

@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } fro
 import { useRouter } from "expo-router";
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
+import GradientBackground from "../../components/gradient"; // Import GradientBackground
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -30,44 +31,45 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.headingText}>Hey,</Text>
-        <Text style={styles.headingText}>Welcome</Text>
-        <Text style={styles.headingText}>Back!!</Text>
-      </View>
-      <Text style={styles.title}>Enter your details:</Text>
-      <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} />
-      <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} />
-      <TouchableOpacity>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>Login</Text>
-      </TouchableOpacity>
-      <Text style={styles.continueText}>or continue with</Text>
-        <TouchableOpacity style={styles.googleButtonContainer}>
-          <Image source={require("../../assets/images/google.png")}
-            style={styles.googleImage}
-          />
-          <Text style={styles.googleText}>Google</Text>
-        </TouchableOpacity>
-        <View style={styles.footerContainer}>
-          <Text style={styles.accountText}>Dont have an account?</Text>
-          <TouchableOpacity onPress={() => router.push("/screens/signup")}>
-            <Text style={styles.signupText}>Sign up</Text>
-          </TouchableOpacity>
+    <GradientBackground>
+      <View style={styles.contentContainer}>
+        <View style={styles.textContainer}>
+          <Text style={[styles.headingText, { color: '#FF9800' }]}>Hey,</Text>
+          <Text style={[styles.headingText, { color: '#fff' }]}>Welcome</Text>
+          <Text style={styles.headingText}>Back!!</Text>
         </View>
-    </View>
+        <Text style={styles.title}>Enter your details:</Text>
+        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#666666" />
+        <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} placeholderTextColor="#666666" />
+        <TouchableOpacity>
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <Text style={styles.continueText}>or continue with</Text>
+          <TouchableOpacity style={styles.googleButtonContainer}>
+            <Image source={require("../../assets/images/google.png")}
+              style={styles.googleImage}
+            />
+            <Text style={styles.googleText}>Google</Text>
+          </TouchableOpacity>
+          <View style={styles.footerContainer}>
+            <Text style={styles.accountText}>Dont have an account?</Text>
+            <TouchableOpacity onPress={() => router.push("/screens/signup")}>
+              <Text style={styles.signupText}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
+      </View>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  contentContainer: {
     flex: 1,
     paddingHorizontal: 20,
     justifyContent: "center",
-    backgroundColor: "#fff",
   },
   title: {
     fontSize: 30,
@@ -78,7 +80,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderRadius: 100,
-    borderColor: "#ccc",
+    borderColor: colors.primary,
     paddingHorizontal: 20,
     flexDirection: "row",
     alignItems: "center",
@@ -87,7 +89,7 @@ const styles = StyleSheet.create({
     height: 50,
   },
   button: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#388E3C",
     paddingVertical: 15,
     borderRadius: 100,
     alignItems: "center",
@@ -103,9 +105,9 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   headingText: {
-    fontSize: 40,
+    fontSize: 32,
     fontFamily: fonts.SemiBold,
-    color: "#007AFF",
+    color: "#2E7D32",
   },
   forgotPasswordText: {
     textAlign: "right",
