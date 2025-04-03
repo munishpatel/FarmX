@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ActivityIndicator, FlatList, Image, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ActivityIndicator, FlatList, Image, ScrollView, TouchableOpacity } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
@@ -97,13 +97,42 @@ export default function LandingPage() {
 
         {/* Quick Actions */}
         <View style={styles.actionsContainer}>
-          <View style={styles.actionCard}>
-            <Text style={styles.actionTitle}>Crop Health</Text>
-            <Text style={styles.actionSubtitle}>Check your fields</Text>
+          {/* First Row */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/crop-health")}>
+              <View style={styles.actionIconContainer}>
+                <Image source={require("../../assets/images/crop-health.png")} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionTitle}>Crop Health</Text>
+              <Text style={styles.actionSubtitle}>Check your fields</Text>
+            </TouchableOpacity>
+    
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/ai-insights")}>
+              <View style={styles.actionIconContainer}>
+                <Image source={require("../../assets/images/ai-insights.png")} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionTitle}>AI Insights</Text>
+              <Text style={styles.actionSubtitle}>Latest predictions</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.actionCard}>
-            <Text style={styles.actionTitle}>AI Insights</Text>
-            <Text style={styles.actionSubtitle}>Latest predictions</Text>
+  
+          {/* Second Row */}
+          <View style={styles.actionsRow}>
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/recommendations")}>
+              <View style={styles.actionIconContainer}>
+                <Image source={require("../../assets/images/recommendations.svg")} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionTitle}>Get Recommendations</Text>
+              <Text style={styles.actionSubtitle}>Personalized suggestions</Text>
+            </TouchableOpacity>
+    
+            <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/assistant")}>
+              <View style={styles.actionIconContainer}>
+                <Image source={require("../../assets/images/assistant.svg")} style={styles.actionIcon} />
+              </View>
+              <Text style={styles.actionTitle}>Assistant</Text>
+              <Text style={styles.actionSubtitle}>Ask FarmR.ai</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -233,30 +262,50 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   actionsContainer: {
+    marginBottom: 24,
+  },
+  actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    marginBottom: 16,
   },
   actionCard: {
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: 16,
-    padding: 20,
+    padding: 16,
     width: '48%',
+    alignItems: 'center',
     elevation: 3,
     shadowColor: colors.black,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 6,
   },
+  actionIconContainer: {
+    backgroundColor: colors.primaryLight,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  actionIcon: {
+    width: 30,
+    height: 30,
+    tintColor: colors.primaryDark,
+  },
   actionTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: fonts.SemiBold,
     color: colors.text,
     marginBottom: 4,
+    textAlign: 'center',
   },
   actionSubtitle: {
-    fontSize: 14,
+    fontSize: 12,
     fontFamily: fonts.Regular,
     color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
