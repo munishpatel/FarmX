@@ -122,7 +122,7 @@ export default function LandingPage() {
               <View style={styles.actionIconContainer}>
                 <Image source={require("../../assets/images/recommendations.png")} style={styles.actionIcon} />
               </View>
-              <Text style={styles.actionTitle}>Get Recommendation</Text>
+              <Text style={styles.actionTitle}>Recommendations</Text>
               <Text style={styles.actionSubtitle}>Personalized suggestions</Text>
             </TouchableOpacity>
     
