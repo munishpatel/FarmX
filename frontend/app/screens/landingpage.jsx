@@ -120,15 +120,15 @@ export default function LandingPage() {
           <View style={styles.actionsRow}>
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/recommendations")}>
               <View style={styles.actionIconContainer}>
-                <Image source={require("../../assets/images/recommendations.svg")} style={styles.actionIcon} />
+                <Image source={require("../../assets/images/recommendations.png")} style={styles.actionIcon} />
               </View>
-              <Text style={styles.actionTitle}>Get Recommendations</Text>
+              <Text style={styles.actionTitle}>Get Recommendation</Text>
               <Text style={styles.actionSubtitle}>Personalized suggestions</Text>
             </TouchableOpacity>
     
             <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/assistant")}>
               <View style={styles.actionIconContainer}>
-                <Image source={require("../../assets/images/assistant.svg")} style={styles.actionIcon} />
+                <Image source={require("../../assets/images/assistant.png")} style={styles.actionIcon} />
               </View>
               <Text style={styles.actionTitle}>Assistant</Text>
               <Text style={styles.actionSubtitle}>Ask FarmR.ai</Text>
