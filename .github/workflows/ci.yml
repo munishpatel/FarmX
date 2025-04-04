@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Run a test
+      run: |
+        echo "Running tests..."
+        # This is where you would run actual tests
+        # For example: npm test, pytest, etc.
+        sleep 10  # This delay ensures the check doesn't complete instantly
+        
+    - name: Build
+      run: |
+        echo "Building project..."
+        # This is where you would build your project
+        # For example: npm build, make, etc.
+        sleep 5  # Another small delay
