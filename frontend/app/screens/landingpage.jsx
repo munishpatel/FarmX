@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, ActivityIndicator, FlatList, Image, ScrollView,
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
+import { router } from 'expo-router';
+
 
 export default function LandingPage() {
   const [weatherData, setWeatherData] = useState(null);

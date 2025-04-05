@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 const { MongoClient } = require("mongodb"); // Use MongoClient from mongodb package
 
 const authRoutes = require("./routes/authRoutes");
+const imageRoutes = require("./routes/imageRoutes");
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5001;
 
@@ -31,6 +33,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve static files from uploads directory
+app.use("/api/images", imageRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend is running");
