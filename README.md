@@ -1,6 +1,6 @@
 # FarmR.ai
 
-FarmR.ai is a full-stack application designed to manage farm-related activities. "Plant once, harvest always: Farm smarter, using our AI that sees, speaks, and understands and that grows with your farm."
+FarmR.ai is a full-stack application designed to manage farm-related activities and a friendly app for farmers. "Plant once, harvest always: Farm smarter, using our AI that sees, speaks, and understands and that grows with your farm."
 This project includes a backend built with Node.js and Express, and a frontend built with React Native using Expo.
 
 ---
