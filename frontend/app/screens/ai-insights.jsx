@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../utils/colors';
 import { fonts } from '../../utils/fonts';
@@ -23,12 +31,8 @@ export default function AiInsights() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Water Management</Text>
           <View style={styles.insightRow}>
-            <View style={styles.chartPlaceholder}>
-              <Text style={styles.chartText}>[Moisture Pie Chart]</Text>
-            </View>
-            <View style={styles.chartPlaceholder}>
-              <Text style={styles.chartText}>[Water Usage Timeline]</Text>
-            </View>
+            <Image source={require('../../assets/images/moisture-pie.png')} style={styles.chartImage} />
+            <Image source={require('../../assets/images/water-timeline.png')} style={styles.chartImage} />
           </View>
           <Text style={styles.sectionText}>
             Based on your farm’s data, we recommend adjusting your watering schedule during early mornings for better absorption and reduced evaporation.
@@ -38,9 +42,7 @@ export default function AiInsights() {
         {/* 2. Fertilizer */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Fertilizer</Text>
-          <View style={styles.chartPlaceholderFull}>
-            <Text style={styles.chartText}>[Fertilizer Bar Graph]</Text>
-          </View>
+          <Image source={require('../../assets/images/fertilizer-bar.png')} style={styles.chartImageFull} />
           <Text style={styles.sectionText}>
             The fertilizers used had moderate environmental impact. Consider reducing nitrogen-based fertilizers and increasing compost or organic options for sustainability.
           </Text>
@@ -113,8 +115,8 @@ export default function AiInsights() {
               }
 
               const landAcres = parseFloat(land);
-              const yieldEstimate = landAcres * 1000; // in kg
-              const seedEstimate = landAcres * 25;    // units
+              const yieldEstimate = landAcres * 1000;
+              const seedEstimate = landAcres * 25;
 
               const result = `Based on your input of ${landAcres} acres for ${crop},\n\nEstimated Yield: ~${yieldEstimate} kg\nRequired Seeds: ~${seedEstimate} units.\n\nEnsure irrigation availability: "${irrigation}" and farming type: "${farmingType}" are optimal for best results.`;
 
@@ -167,28 +169,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  chartPlaceholder: {
+  chartImage: {
     width: '48%',
     height: 120,
     borderRadius: 12,
-    backgroundColor: '#d7ffd9',
-    justifyContent: 'center',
-    alignItems: 'center',
+    resizeMode: 'cover',
     marginBottom: 12,
   },
-  chartPlaceholderFull: {
+  chartImageFull: {
     width: '100%',
     height: 140,
     borderRadius: 12,
-    backgroundColor: '#d7ffd9',
-    justifyContent: 'center',
-    alignItems: 'center',
+    resizeMode: 'cover',
     marginBottom: 12,
-  },
-  chartText: {
-    fontSize: 14,
-    fontFamily: fonts.Regular,
-    color: '#555',
   },
   sectionText: {
     fontSize: 14,
