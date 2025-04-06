@@ -67,7 +67,7 @@ function runPythonScript(scriptPath, args) {
     });
 }
 
-// Routes
+// Added new route
 app.post('/api/ai/query', async (req, res) => {
     try {
         const { text } = req.body;

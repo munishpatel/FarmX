@@ -1,6 +1,6 @@
 from typing import Dict, List, Any, Optional, Tuple, TypedDict
 import asyncio
-from agents.utils.base_agent import BaseAgent
+from agents.utils.base_agent import BasicQueryAgent as BaseAgent
 import logging
 from agents.vector_store.vector_store import VectorStore
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
@@ -12,6 +12,7 @@ from langchain.tools import Tool
 from langchain.agents import AgentExecutor, create_openai_functions_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.schema import AgentAction, AgentFinish
+from agents.utils.simple_query_agent import SimpleQueryHandler  # Import the simple query handler
 import json
 
 class AgentState(TypedDict):
@@ -21,6 +22,8 @@ class AgentState(TypedDict):
     final_result: Optional[Dict]
     iteration_count: int  # Track number of iterations
     query_satisfied: bool  # Track if query has been answered
+    is_simple_query: bool  # Track if this is a simple query
+    complexity_score: int  # Track query complexity
 
 class AgentOrchestrator:
     def __init__(self, openai_api_key: str):
@@ -39,6 +42,9 @@ class AgentOrchestrator:
         except Exception as e:
             self.logger.error(f"Error initializing vector store: {str(e)}")
             self.vector_store = None
+            
+        # Create and register the simple query handler
+        # self.simple_query_handler = SimpleQueryHandler("simple_query_handler", openai_api_key)
             
         self.workflow = self._create_workflow()
         
