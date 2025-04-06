@@ -3,6 +3,7 @@ import sys
 import json
 import os
 from dotenv import load_dotenv
+from agents.utils.basic_query_agent import BasicQueryAgent
 
 # Add the backend directory to Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -29,6 +30,17 @@ async def main():
         
         # Initialize orchestrator
         orchestrator = AgentOrchestrator(openai_api_key)
+        
+        # Register specialized agents
+        await orchestrator.register_agent(SoilAnalyzerAgent("soil_analyzer", openai_api_key))
+        await orchestrator.register_agent(WeatherAnalyzerAgent("weather_analyzer", openai_api_key))
+        await orchestrator.register_agent(CropRecommenderAgent("crop_recommender", openai_api_key))
+        await orchestrator.register_agent(SustainabilityAdvisorAgent("sustainability_advisor", openai_api_key))
+        await orchestrator.register_agent(DataCollectorAgent("data_collector", openai_api_key))
+        
+        # Create and register the basic query agent
+        basic_agent = BasicQueryAgent("basic_query_agent", openai_api_key)
+        await orchestrator.register_agent(basic_agent)
         
         # Process query
         result = await orchestrator.process_query(query)

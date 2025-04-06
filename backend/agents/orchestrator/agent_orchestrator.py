@@ -1,6 +1,6 @@
 from typing import Dict, List, Any, Optional, Tuple, TypedDict
 import asyncio
-from agents.utils.base_agent import BasicQueryAgent as BaseAgent
+from agents.utils.base_agent import BaseAgent
 import logging
 from agents.vector_store.vector_store import VectorStore
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
