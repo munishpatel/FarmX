@@ -1,8 +1,8 @@
 from typing import Dict, List, Any, Optional, Tuple, TypedDict
 import asyncio
-from ..utils.base_agent import BaseAgent
+from agents.utils.base_agent import BaseAgent
 import logging
-from ..vector_store.vector_store import VectorStore
+from agents.vector_store.vector_store import VectorStore
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.output_parsers import JsonOutputParser
@@ -19,6 +19,8 @@ class AgentState(TypedDict):
     current_agent: Optional[str]
     tools_results: List[Dict]
     final_result: Optional[Dict]
+    iteration_count: int  # Track number of iterations
+    query_satisfied: bool  # Track if query has been answered
 
 class AgentOrchestrator:
     def __init__(self, openai_api_key: str):
@@ -82,17 +84,65 @@ class AgentOrchestrator:
             agent = self.agents[agent_name]
             result = await agent.process(state["messages"][-1].content)
             
-            state["tools_results"].append({
-                "agent": agent_name,
-                "result": result
-            })
+            # Validate result
+            if result and isinstance(result, dict) and "status" in result:
+                if result["status"] == "success":
+                    state["tools_results"].append({
+                        "agent": agent_name,
+                        "result": result
+                    })
+                    
+                    # Check if this result satisfies the query
+                    satisfaction_prompt = ChatPromptTemplate.from_messages([
+                        ("system", """You are an expert at evaluating if a response fully answers a query.
+                        Respond with just 'yes' or 'no'."""),
+                        ("human", "Query: {query}"),
+                        ("human", "Response: {response}")
+                    ])
+                    
+                    satisfaction_response = self.llm.invoke(satisfaction_prompt.format_messages(
+                        query=state["messages"][-1].content,
+                        response=json.dumps(result)
+                    ))
+                    
+                    state["query_satisfied"] = satisfaction_response.content.strip().lower() == "yes"
+                else:
+                    state["messages"].append(AIMessage(content=f"Error from {agent_name}: {result.get('error', 'Unknown error')}"))
+            else:
+                state["messages"].append(AIMessage(content=f"Invalid result from {agent_name}"))
             
             return state
             
         def should_continue(state: AgentState) -> Dict[str, Any]:
             """Determine if we need more agents or can finish"""
-            if len(state["tools_results"]) >= 3:  # Limit to 3 agents per query
+            # Increment iteration count
+            state["iteration_count"] += 1
+            
+            # Log current state
+            self.logger.info(f"Iteration {state['iteration_count']}, Results: {len(state['tools_results'])}, Query Satisfied: {state['query_satisfied']}")
+            
+            # Check iteration limit
+            if state["iteration_count"] >= 5:  # Limit to 5 iterations
+                self.logger.info("Reached maximum iterations")
                 return {"next": "end"}
+                
+            # Check if query is satisfied
+            if state["query_satisfied"]:
+                self.logger.info("Query satisfied by current results")
+                return {"next": "end"}
+                
+            # Check if we have enough results
+            if len(state["tools_results"]) >= 3:  # Limit to 3 agents per query
+                self.logger.info("Reached maximum number of agent results")
+                return {"next": "end"}
+                
+            # Check if we've used all available agents
+            used_agents = {result["agent"] for result in state["tools_results"]}
+            available_agents = set(self.agents.keys())
+            if used_agents == available_agents:
+                self.logger.info("All available agents have been used")
+                return {"next": "end"}
+                
             return {"next": "continue"}
             
         def generate_final_response(state: AgentState) -> AgentState:
@@ -113,7 +163,9 @@ class AgentOrchestrator:
             
             state["final_result"] = {
                 "response": response.content,
-                "sources": state["tools_results"]
+                "sources": state["tools_results"],
+                "iterations": state["iteration_count"],
+                "query_satisfied": state["query_satisfied"]
             }
             
             return state
@@ -149,7 +201,9 @@ class AgentOrchestrator:
                 "messages": [HumanMessage(content=query)],
                 "current_agent": None,
                 "tools_results": [],
-                "final_result": None
+                "final_result": None,
+                "iteration_count": 0,  # Initialize iteration counter
+                "query_satisfied": False  # Initialize query satisfaction flag
             }
             
             # Run the workflow
