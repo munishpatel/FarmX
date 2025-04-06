@@ -1,44 +1,60 @@
-from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
-import logging
+from typing import Dict, List, Any, Optional
+from agents.utils.base_agent import BaseAgent
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
 
-class BaseAgent(ABC):
-    def __init__(self, name: str, config: Optional[Dict[str, Any]] = None):
-        self.name = name
-        self.config = config or {}
-        self.logger = logging.getLogger(f"agent.{name}")
+class BasicQueryAgent(BaseAgent):
+    """Agent for handling simple, general farming queries without specialized processing."""
+    
+    def __init__(self, name: str, openai_api_key: str):
+        super().__init__(name)
+        self.llm = ChatOpenAI(
+            model="gpt-3.5-turbo",  # Using a smaller model for efficiency
+            temperature=0,
+            openai_api_key=openai_api_key
+        )
         
-    @abstractmethod
     async def initialize(self) -> None:
-        """Initialize the agent with necessary resources"""
-        pass
+        """Initialize the agent."""
+        self.initialized = True
+        return
+        
+    async def process(self, query: str) -> Dict[str, Any]:
+        """
+        Process a simple farming query and provide a direct response.
+        
+        Returns:
+            Dict with:
+            - status: "success" or "error"
+            - result: The response to the query
+        """
+        try:
+            # Process the query with a farming-focused prompt
+            answer_prompt = ChatPromptTemplate.from_messages([
+                ("system", """You are a knowledgeable farming assistant with general knowledge about sustainable 
+                agriculture, common farming practices, and basic crop information.
+                
+                Provide helpful, concise answers to general farming questions. If the query requires 
+                specialized agricultural expertise beyond general knowledge, still provide the best 
+                answer you can based on general principles.
+                """),
+                ("human", "{query}")
+            ])
+            
+            response = self.llm.invoke(answer_prompt.format_messages(query=query))
+            
+            return {
+                "status": "success",
+                "result": response.content
+            }
+                
+        except Exception as e:
+            return {
+                "status": "error",
+                "error": str(e)
+            }
     
-    @abstractmethod
-    async def process(self, input_data: Any) -> Any:
-        """Process the input data and return results"""
-        pass
-    
-    @abstractmethod
     async def cleanup(self) -> None:
-        """Cleanup resources when the agent is done"""
-        pass
-    
-    def get_capabilities(self) -> Dict[str, Any]:
-        """Return the capabilities of the agent"""
-        return {
-            "name": self.name,
-            "capabilities": self.config.get("capabilities", [])
-        }
-    
-    async def validate_input(self, input_data: Any) -> bool:
-        """Validate the input data before processing"""
-        return True
-    
-    async def handle_error(self, error: Exception) -> Dict[str, Any]:
-        """Handle any errors that occur during processing"""
-        self.logger.error(f"Error in {self.name}: {str(error)}")
-        return {
-            "status": "error",
-            "agent": self.name,
-            "error": str(error)
-        } 
+        """Cleanup resources."""
+        self.initialized = False
+        return
