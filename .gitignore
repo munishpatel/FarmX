@@ -3,3 +3,4 @@ backend/node_modules
 frontend/.expo
 frontend/expo-env.d.ts
 .DS_Store
+backend/myenv

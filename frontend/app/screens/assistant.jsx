@@ -22,23 +22,38 @@ export default function Assistant() {
   ]);
   const [inputText, setInputText] = useState("");
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!inputText.trim()) return;
-
-    const newMessages = [...messages, { text: inputText, sender: "user" }];
-    setMessages(newMessages);
+  
+    // Add user message to chat
+    const userMessage = { text: inputText, sender: "user" };
+    setMessages((prev) => [...prev, userMessage]);
+    const prompt = inputText;
     setInputText("");
-
-    // Simulated bot reply with buttons
-    setTimeout(() => {
+  
+    try {
+      const response = await fetch("http://localhost:5001/api/query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
+  
+      const data = await response.json();
+  
       const botReply = {
-        text: "Would you like help with any of the following?",
+        text: data.result || "I'm still learning! Please try again later.",
         sender: "bot",
-        buttons: ["Crop Health", "Weather Forecast", "Fertilizer Advice"],
       };
       setMessages((prev) => [...prev, botReply]);
-    }, 1000);
+    } catch (err) {
+      console.error("Failed to get response from backend", err);
+      setMessages((prev) => [
+        ...prev,
+        { text: "Oops! Something went wrong. Please try again.", sender: "bot" },
+      ]);
+    }
   };
+  
 
   const handleImagePick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
