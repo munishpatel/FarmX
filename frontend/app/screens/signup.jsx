@@ -1,14 +1,17 @@
 import React, { useState } from "react";
-import { View, Text, Image, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
-import GradientBackground from "../../components/gradient"; 
+import GradientBackground from "../../components/gradient";
 
 export default function SignupScreen() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isFocusedName, setIsFocusedName] = useState(false);
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
   const router = useRouter();
 
   const handleSignup = async () => {
@@ -22,7 +25,7 @@ export default function SignupScreen() {
       const data = await response.json();
       if (response.ok) {
         Alert.alert("Success", data.message);
-        router.push("/screens/login"); // Navigate to login page after signup
+        router.push("/screens/login");
       } else {
         Alert.alert("Error", data.message);
       }
@@ -33,115 +36,194 @@ export default function SignupScreen() {
 
   return (
     <GradientBackground>
-      <View style={styles.contentContainer}>
-        <View style={styles.textContainer}>
-          <Text style={styles.headingText}>Let's get</Text>
-          <Text style={styles.headingText}>started</Text>
-        </View>
-        <Text style={styles.title}>Sign Up</Text>
-        <TextInput placeholder="Name" style={styles.input} value={name} onChangeText={setName} placeholderTextColor="#666666" />
-        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#666666" />
-        <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} placeholderTextColor="#666666" />
-
-        <TouchableOpacity style={styles.button} onPress={handleSignup}>
-          <Text style={styles.buttonText}>Sign Up</Text>
-        </TouchableOpacity>
-        <Text style={styles.continueText}>or continue with</Text>
-          <TouchableOpacity style={styles.googleButtonContainer}>
-            <Image
-              source={require("../../assets/images/google.png")}
-              style={styles.googleImage}
-            />
-            <Text style={styles.googleText}>Google</Text>
-          </TouchableOpacity>
-          <View style={styles.footerContainer}>
-            <Text style={styles.accountText}>Already have an account!</Text>
-            <TouchableOpacity onPress={() => router.push("/screens/login")}>
-              <Text style={styles.signupText}>Login</Text>
-            </TouchableOpacity>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <View style={styles.contentContainer}>
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Create Account</Text>
+            <Text style={styles.subtitle}>Get started with your journey</Text>
           </View>
-      </View>
+
+          <View style={styles.formContainer}>
+            <TextInput
+              placeholder="Full Name"
+              style={[styles.input, isFocusedName && styles.inputFocused]}
+              value={name}
+              onChangeText={setName}
+              placeholderTextColor={colors.textSecondary}
+              onFocus={() => setIsFocusedName(true)}
+              onBlur={() => setIsFocusedName(false)}
+              autoCapitalize="words"
+            />
+
+            <TextInput
+              placeholder="Email"
+              style={[styles.input, isFocusedEmail && styles.inputFocused]}
+              value={email}
+              onChangeText={setEmail}
+              placeholderTextColor={colors.textSecondary}
+              onFocus={() => setIsFocusedEmail(true)}
+              onBlur={() => setIsFocusedEmail(false)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <TextInput
+              placeholder="Password"
+              style={[styles.input, isFocusedPassword && styles.inputFocused]}
+              value={password}
+              onChangeText={setPassword}
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry
+              onFocus={() => setIsFocusedPassword(true)}
+              onBlur={() => setIsFocusedPassword(false)}
+            />
+
+            <TouchableOpacity style={styles.signupButton} onPress={handleSignup}>
+              <Text style={styles.signupButtonText}>Sign Up</Text>
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or continue with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <Image
+                source={require("../../assets/images/google.png")}
+                style={styles.socialIcon}
+              />
+              <Text style={styles.socialButtonText}>Google</Text>
+            </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Already have an account?</Text>
+              <TouchableOpacity onPress={() => router.push("/screens/login")}>
+                <Text style={styles.footerLink}>Login</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  contentContainer: { // Add contentContainer style
+  container: {
     flex: 1,
-    paddingHorizontal: 20,
-    justifyContent: "center",
   },
-  textContainer: {
-    marginVertical: 20,
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 24,
+    justifyContent: 'center',
   },
-  headingText: {
-    fontSize: 32,
-    color: colors.primary,
-    fontFamily: fonts.SemiBold,
+  header: {
+    marginBottom: 32,
   },
-  title: {
+  welcomeText: {
     fontSize: 28,
-    marginBottom: 20,
-    textAlign: "center",
+    fontFamily: fonts.Bold,
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: fonts.Regular,
+    color: colors.textSecondary,
+  },
+  formContainer: {
+    width: '100%',
   },
   input: {
+    backgroundColor: colors.gray,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    fontFamily: fonts.Regular,
+    color: colors.text,
+    marginBottom: 16,
     borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  inputFocused: {
     borderColor: colors.primary,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    marginBottom: 15,
-    borderRadius: 100,
+    backgroundColor: colors.white,
   },
-  button: {
-    backgroundColor: "#FF9800",
-    paddingVertical: 15,
-    borderRadius: 100,
-    alignItems: "center",
-    marginTop: 15,
+  signupButton: {
+    backgroundColor: colors.secondary, // Using the orange color
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginTop: 8,
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  buttonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
-  },
-  continueText: {
-    textAlign: "center",
-    marginVertical: 20,
-    fontSize: 14,
-    fontFamily: fonts.Regular,
-    color: colors.primary,
-  },
-  googleButtonContainer: {
-    flexDirection: "row",
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderRadius: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-    gap: 10,
-  },
-  googleImage: {
-    height: 20,
-    width: 20,
-  },
-  googleText: {
-    fontSize: 20,
+  signupButtonText: {
+    color: colors.white,
     fontFamily: fonts.SemiBold,
+    fontSize: 16,
   },
-  footerContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 20,
-    gap: 5,
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
   },
-  accountText: {
-    color: colors.primary,
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.grayLight,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    color: colors.textSecondary,
     fontFamily: fonts.Regular,
+    fontSize: 14,
   },
-  signupText: {
-    color: colors.primary,
-    fontFamily: fonts.Bold,
+  socialButton: {
+    flexDirection: 'row',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.grayLight,
+    marginBottom: 24,
+  },
+  socialIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  socialButtonText: {
+    color: colors.text,
+    fontFamily: fonts.SemiBold,
+    fontSize: 14,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: colors.textSecondary,
+    fontFamily: fonts.Regular,
+    fontSize: 14,
+  },
+  footerLink: {
+    color: colors.black,
+    fontFamily: fonts.SemiBold,
+    fontSize: 14,
+    marginLeft: 4,
   },
 });

@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image, KeyboardAvoidingView, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import { colors } from "../../utils/colors";
 import { fonts } from "../../utils/fonts";
-import GradientBackground from "../../components/gradient"; // Import GradientBackground
+import GradientBackground from "../../components/gradient";
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
+  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
   const router = useRouter();
 
   const handleLogin = async () => {
@@ -20,8 +22,7 @@ export default function LoginScreen() {
 
       const data = await response.json();
       if (response.ok) {
-        Alert.alert("Success", "Login Successful");
-        router.push("/screens/landingpage"); // Navigate to landing page after login
+        router.push("/screens/landingpage");
       } else {
         Alert.alert("Error", data.message);
       }
@@ -32,125 +33,195 @@ export default function LoginScreen() {
 
   return (
     <GradientBackground>
-      <View style={styles.contentContainer}>
-        <View style={styles.textContainer}>
-          <Text style={[styles.headingText, { color: '#FF9800' }]}>Hey,</Text>
-          <Text style={[styles.headingText, { color: '#fff' }]}>Welcome</Text>
-          <Text style={styles.headingText}>Back!!</Text>
-        </View>
-        <Text style={styles.title}>Enter your details:</Text>
-        <TextInput placeholder="Email" style={styles.input} value={email} onChangeText={setEmail} placeholderTextColor="#666666" />
-        <TextInput placeholder="Password" secureTextEntry style={styles.input} value={password} onChangeText={setPassword} placeholderTextColor="#666666" />
-        <TouchableOpacity>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-          </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-        <Text style={styles.continueText}>or continue with</Text>
-          <TouchableOpacity style={styles.googleButtonContainer}>
-            <Image source={require("../../assets/images/google.png")}
-              style={styles.googleImage}
-            />
-            <Text style={styles.googleText}>Google</Text>
-          </TouchableOpacity>
-          <View style={styles.footerContainer}>
-            <Text style={styles.accountText}>Dont have an account?</Text>
-            <TouchableOpacity onPress={() => router.push("/screens/signup")}>
-              <Text style={styles.signupText}>Sign up</Text>
-            </TouchableOpacity>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <View style={styles.contentContainer}>
+          <View style={styles.header}>
+            <Text style={styles.welcomeText}>Welcome back</Text>
+            <Text style={styles.subtitle}>Login to your account</Text>
           </View>
-      </View>
+
+          <View style={styles.formContainer}>
+            <TextInput
+              placeholder="Email"
+              style={[styles.input, isFocusedEmail && styles.inputFocused]}
+              value={email}
+              onChangeText={setEmail}
+              placeholderTextColor={colors.textSecondary}
+              onFocus={() => setIsFocusedEmail(true)}
+              onBlur={() => setIsFocusedEmail(false)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+            />
+
+            <TextInput
+              placeholder="Password"
+              style={[styles.input, isFocusedPassword && styles.inputFocused]}
+              value={password}
+              onChangeText={setPassword}
+              placeholderTextColor={colors.textSecondary}
+              secureTextEntry
+              onFocus={() => setIsFocusedPassword(true)}
+              onBlur={() => setIsFocusedPassword(false)}
+            />
+
+            <TouchableOpacity style={styles.forgotPasswordButton}>
+              <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+              <Text style={styles.loginButtonText}>Login</Text>
+            </TouchableOpacity>
+
+            <View style={styles.dividerContainer}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or continue with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <TouchableOpacity style={styles.socialButton}>
+              <Image
+                source={require("../../assets/images/google.png")}
+                style={styles.socialIcon}
+              />
+              <Text style={styles.socialButtonText}>Google</Text>
+            </TouchableOpacity>
+
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Don't have an account?</Text>
+              <TouchableOpacity onPress={() => router.push("/screens/signup")}>
+                <Text style={styles.footerLink}>Sign up</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
     </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   contentContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    justifyContent: "center",
+    paddingHorizontal: 24,
+    justifyContent: 'center',
   },
-  title: {
-    fontSize: 30,
-    marginBottom: 5,
-    marginTop: 0,
-    textAlign: "center",
+  header: {
+    marginBottom: 32,
+  },
+  welcomeText: {
+    fontSize: 28,
+    fontFamily: fonts.Bold,
+    color: colors.text,
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    fontFamily: fonts.Regular,
+    color: colors.textSecondary,
+  },
+  formContainer: {
+    width: '100%',
   },
   input: {
+    backgroundColor: colors.gray,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 16,
+    fontFamily: fonts.Regular,
+    color: colors.text,
+    marginBottom: 16,
     borderWidth: 1,
-    borderRadius: 100,
+    borderColor: 'transparent',
+  },
+  inputFocused: {
     borderColor: colors.primary,
-    paddingHorizontal: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    padding: 2,
-    marginVertical: 10,
-    height: 50,
+    backgroundColor: colors.white,
   },
-  button: {
-    backgroundColor: "#388E3C",
-    paddingVertical: 15,
-    borderRadius: 100,
-    alignItems: "center",
-    marginTop: 15,
-  },
-  buttonText: {
-    color: "#fff",
-    fontSize: 25,
-    fontWeight: "600",
-  },
-  textContainer: {
-    marginTop: -100,
-    marginBottom: 50,
-  },
-  headingText: {
-    fontSize: 32,
-    fontFamily: fonts.SemiBold,
-    color: "#2E7D32",
+  forgotPasswordButton: {
+    alignSelf: 'flex-end',
+    marginBottom: 24,
   },
   forgotPasswordText: {
-    textAlign: "right",
-    marginVertical: 10,
-  },
-  continueText: {
-    textAlign: "center",
-    marginVertical: 20,
-    fontSize: 14,
-    fontFamily: fonts.Regular,
-    color: colors.primary,
-  },
-  googleButtonContainer: {
-    flexDirection: "row",
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderRadius: 100,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 10,
-    gap: 10,
-  },
-  googleImage: {
-    height: 20,
-    width: 20,
-  },
-  googleText: {
-    fontSize: 20,
+    color: colors.black,
     fontFamily: fonts.SemiBold,
+    fontSize: 14,
   },
-  footerContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginVertical: 20,
-    gap: 5,
+  loginButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 12,
+    paddingVertical: 16,
+    alignItems: 'center',
+    marginBottom: 24,
+    elevation: 2,
+    shadowColor: colors.black,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  accountText: {
-    color: colors.primary,
+  loginButtonText: {
+    color: colors.white,
+    fontFamily: fonts.SemiBold,
+    fontSize: 16,
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: colors.grayLight,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    color: colors.textSecondary,
     fontFamily: fonts.Regular,
+    fontSize: 14,
   },
-  signupText: {
-    color: colors.primary,
-    fontFamily: fonts.Bold,
+  socialButton: {
+    flexDirection: 'row',
+    backgroundColor: colors.white,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: colors.grayLight,
+    marginBottom: 24,
+  },
+  socialIcon: {
+    width: 20,
+    height: 20,
+    marginRight: 8,
+  },
+  socialButtonText: {
+    color: colors.text,
+    fontFamily: fonts.SemiBold,
+    fontSize: 14,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  footerText: {
+    color: colors.textSecondary,
+    fontFamily: fonts.Regular,
+    fontSize: 14,
+  },
+  footerLink: {
+    color: colors.black,
+    fontFamily: fonts.SemiBold,
+    fontSize: 14,
+    marginLeft: 4,
   },
 });
