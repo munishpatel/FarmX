@@ -12,22 +12,11 @@ export default function LoginScreen() {
   const [isFocusedPassword, setIsFocusedPassword] = useState(false);
   const router = useRouter();
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("http://localhost:5001/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        router.push("/screens/landingpage");
-      } else {
-        Alert.alert("Error", data.message);
-      }
-    } catch (error) {
-      Alert.alert("Error", "Something went wrong");
+  const handleLogin = () => {
+    if (email && password) {
+      router.push("/screens/landingpage");
+    } else {
+      Alert.alert("Missing Info", "Please enter both email and password.");
     }
   };
 
