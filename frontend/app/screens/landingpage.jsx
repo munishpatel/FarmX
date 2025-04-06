@@ -58,7 +58,7 @@ export default function LandingPage() {
           <View style={styles.header}>
             <Text style={styles.appName}>FarmR.ai</Text>
             <Text style={styles.tagline}>Plant once, harvest always!</Text> 
-            <Text style={styles.tagline}>Farm smarter with AI that sees, speaks, and understands.</Text>
+            <Text style={styles.tagline}>Farming Reimagined with the power of AI/ML & dynamic UI.</Text>
           </View>
 
           <View style={styles.welcomeCard}>
