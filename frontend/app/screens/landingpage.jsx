@@ -130,12 +130,12 @@ export default function LandingPage() {
     
             {/* Second Row */}
             <View style={styles.actionsRow}>
-              <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/recommendations")}>
+              <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/latestnews")}>
                 <View style={[styles.actionIconContainer, styles.recommendationsIcon]}>
                   <Image source={require("../../assets/images/recommendations.png")} style={styles.actionIcon} />
                 </View>
-                <Text style={styles.actionTitle}>Recommendations</Text>
-                <Text style={styles.actionSubtitle}>Personalized suggestions</Text>
+                <Text style={styles.actionTitle}>What's New</Text>
+                <Text style={styles.actionSubtitle}>News around the world</Text>
               </TouchableOpacity>
       
               <TouchableOpacity style={styles.actionCard} onPress={() => router.push("/screens/assistant")}>

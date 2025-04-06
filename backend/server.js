@@ -4,6 +4,8 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const { MongoClient } = require("mongodb"); // Use MongoClient from mongodb package
 const { spawn } = require('child_process');
+const imageRoutes = require("./routes/imageRoutes");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const queryRoutes = require("./routes/queryRoutes");
@@ -36,6 +38,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads"))); // Serve static files from uploads directory
 app.use("/api", queryRoutes);
+app.use("/api/images", imageRoutes);
 
 // Function to run Python script and return a promise
 function runPythonScript(scriptPath, args) {
