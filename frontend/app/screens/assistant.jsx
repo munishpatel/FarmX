@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,51 +9,169 @@ import {
   KeyboardAvoidingView,
   Platform,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../../utils/colors';
 import { fonts } from '../../utils/fonts';
 import { LinearGradient } from 'expo-linear-gradient';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function Assistant() {
-  const [messages, setMessages] = useState([
-    { text: "Hi! I’m FarmR.ai. How can I help you today?", sender: "bot" }
-  ]);
-  const [inputText, setInputText] = useState("");
+// API Configuration
+const API_CONFIG = {
+  development: 'http://localhost:5001',
+  production: 'https://your-production-api.com',
+};
 
-  const handleSend = async () => {
-    if (!inputText.trim()) return;
-  
-    // Add user message to chat
-    const userMessage = { text: inputText, sender: "user" };
-    setMessages((prev) => [...prev, userMessage]);
-    const prompt = inputText;
-    setInputText("");
-  
+// File changed
+
+const API_URL = API_CONFIG.development;
+
+const AssistantScreen = () => {
+  const [messages, setMessages] = useState([]);
+  const [inputText, setInputText] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const scrollViewRef = useRef(null);
+
+  // Check API connection on component mount
+  useEffect(() => {
+    checkApiConnection();
+  }, []);
+
+  const checkApiConnection = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
+      const response = await fetch(`${API_URL}/api/ai/query`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: "test connection"
+        }),
       });
-  
-      const data = await response.json();
-  
-      const botReply = {
-        text: data.result || "I'm still learning! Please try again later.",
-        sender: "bot",
-      };
-      setMessages((prev) => [...prev, botReply]);
-    } catch (err) {
-      console.error("Failed to get response from backend", err);
-      setMessages((prev) => [
-        ...prev,
-        { text: "Oops! Something went wrong. Please try again.", sender: "bot" },
-      ]);
+      
+      if (response.ok) {
+        setIsConnected(true);
+      } else {
+        setIsConnected(false);
+        Alert.alert(
+          'Connection Error',
+          'Unable to connect to the server. Please check if the server is running.',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      setIsConnected(false);
+      Alert.alert(
+        'Connection Error',
+        'Unable to connect to the server. Please check if the server is running.',
+        [{ text: 'OK' }]
+      );
     }
   };
-  
+
+  const sendMessage = async () => {
+    if (!inputText.trim() || isLoading || !isConnected) return;
+
+    const userMessage = {
+      id: Date.now(),
+      text: inputText,
+      sender: 'user',
+      timestamp: new Date().toISOString()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputText('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_URL}/api/ai/query`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: inputText
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.status === 'success') {
+        const assistantMessage = {
+          id: Date.now() + 1,
+          text: data.result.response,
+          sender: 'assistant',
+          timestamp: new Date().toISOString(),
+          sources: data.result.sources
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+      } else {
+        throw new Error(data.error || 'Something went wrong');
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+      const errorMessage = {
+        id: Date.now() + 1,
+        text: `Error: ${error.message}`,
+        sender: 'error',
+        timestamp: new Date().toISOString()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+      
+      // If connection error, try to reconnect
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        checkApiConnection();
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
+
+  const renderMessage = (message) => {
+    const isUser = message.sender === 'user';
+    const isError = message.sender === 'error';
+
+    return (
+      <View key={message.id} style={[
+        styles.messageContainer,
+        isUser ? styles.userMessage : styles.assistantMessage,
+        isError && styles.errorMessage
+      ]}>
+        <Text style={[
+          styles.messageText,
+          isUser ? styles.userMessageText : styles.assistantMessageText,
+          isError && styles.errorMessageText
+        ]}>
+          {message.text}
+        </Text>
+        {message.sources && (
+          <View style={styles.sourcesContainer}>
+            <Text style={styles.sourcesTitle}>Sources:</Text>
+            {message.sources.map((source, index) => (
+              <Text key={index} style={styles.sourceText}>
+                {source.agent}: {source.result.status}
+              </Text>
+            ))}
+          </View>
+        )}
+      </View>
+    );
+  };
 
   const handleImagePick = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -104,80 +222,58 @@ export default function Assistant() {
       }
   };
 
-  const renderMessage = (msg, index) => (
-    <View
-      key={index}
-      style={[
-        styles.messageRow,
-        msg.sender === "user" ? styles.userRow : styles.botRow,
-      ]}
-    >
-      <Image
-        source={
-          msg.sender === "user"
-            ? require("../../assets/images/user-avatar.png")
-            : require("../../assets/images/bot-avatar.png")
-        }
-        style={styles.avatar}
-      />
-
-      <View
-        style={[
-          styles.messageBubble,
-          msg.sender === "user" ? styles.userBubble : styles.botBubble,
-        ]}
-      >
-        {msg.text && <Text style={styles.messageText}>{msg.text}</Text>}
-
-        {msg.image && (
-          <Image source={{ uri: msg.image }} style={styles.messageImage} />
-        )}
-
-        {msg.buttons && (
-          <View style={styles.buttonContainer}>
-            {msg.buttons.map((btn, i) => (
-              <TouchableOpacity key={i} style={styles.chatButton}>
-                <Text style={styles.chatButtonText}>{btn}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-      </View>
-    </View>
-  );
-
   return (
     <LinearGradient colors={['#E8F5E9', '#C8E6C9', '#A5D6A7']} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
+        {!isConnected && (
+          <View style={styles.connectionBanner}>
+            <Text style={styles.connectionText}>Not connected to server</Text>
+            <TouchableOpacity onPress={checkApiConnection} style={styles.retryButton}>
+              <Text style={styles.retryButtonText}>Retry Connection</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         <ScrollView
+          ref={scrollViewRef}
           style={styles.chatContainer}
           contentContainerStyle={{ paddingVertical: 20 }}
           showsVerticalScrollIndicator={false}
         >
-          {messages.map((msg, index) => renderMessage(msg, index))}
+          {messages.map((msg, index) => renderMessage(msg))}
+          {isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={colors.primaryDark} />
+              <Text style={styles.loadingText}>Processing your query...</Text>
+            </View>
+          )}
         </ScrollView>
 
         <View style={styles.inputContainer}>
           <TouchableOpacity onPress={handleImagePick} style={styles.iconBtn}>
             <Ionicons name="image-outline" size={22} color={colors.primaryDark} />
           </TouchableOpacity>
-
           <TextInput
-            style={styles.input}
-            placeholder="Type a message..."
-            placeholderTextColor="#999"
+            style={[styles.input, !isConnected && styles.inputDisabled]}
             value={inputText}
             onChangeText={setInputText}
+            placeholder={isConnected ? "Ask about sustainable farming..." : "Server disconnected"}
+            placeholderTextColor="#999"
+            multiline
+            maxLength={500}
+            editable={isConnected && !isLoading}
           />
-
-          <TouchableOpacity style={styles.sendButton} onPress={handleSend}>
+          <TouchableOpacity
+            style={[styles.sendButton, (isLoading || !isConnected) && styles.sendButtonDisabled]}
+            onPress={sendMessage}
+            disabled={isLoading || !inputText.trim() || !isConnected}
+          >
             <Ionicons name="send" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
     </LinearGradient>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -211,7 +307,7 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   userBubble: {
-    backgroundColor: '#E0F7FA',
+    backgroundColor: colors.primaryDark,
     borderTopRightRadius: 0,
   },
   botBubble: {
@@ -221,6 +317,12 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: 16,
     fontFamily: fonts.Regular,
+    color: colors.text,
+  },
+  userMessageText: {
+    color: '#FFFFFF',
+  },
+  botMessageText: {
     color: colors.text,
   },
   messageImage: {
@@ -256,25 +358,67 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  sendButtonDisabled: {
+    backgroundColor: '#A0A0A0',
+  },
   iconBtn: {
     marginRight: 8,
   },
-  buttonContainer: {
+  loadingContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
   },
-  chatButton: {
-    backgroundColor: colors.primaryLight,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  chatButtonText: {
-    fontFamily: fonts.SemiBold,
-    color: colors.primaryDark,
+  loadingText: {
+    marginLeft: 8,
+    color: colors.text,
     fontSize: 14,
+    fontFamily: fonts.Regular,
+  },
+  connectionBanner: {
+    backgroundColor: '#FFE5E5',
+    padding: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  connectionText: {
+    color: '#FF3B30',
+    fontSize: 14,
+    fontFamily: fonts.Regular,
+  },
+  retryButton: {
+    backgroundColor: '#FF3B30',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontFamily: fonts.Regular,
+  },
+  inputDisabled: {
+    backgroundColor: '#E0E0E0',
+  },
+  sourcesContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#E0E0E0',
+  },
+  sourcesTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    fontFamily: fonts.SemiBold,
+  },
+  sourceText: {
+    fontSize: 12,
+    color: '#666',
+    fontFamily: fonts.Regular,
   },
 });
+
+export default AssistantScreen;
